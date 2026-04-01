@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML to APK - Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .project-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-left: 4px solid #667eea;
+            transition: all 0.2s;
+        }
+
+        .project-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .project-item.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .project-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .project-date {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .builder-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .builder-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .input-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 300px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-success {
+            background: #48bb78;
+        }
+
+        .btn-danger {
+            background: #f56565;
+        }
+
+        .btn-info {
+            background: #4299e1;
+        }
+
+        .preview-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .preview-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .app-preview {
+            min-height: 350px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            overflow: auto;
+        }
+
+        .message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .message.error {
+            background: #f56565;
+        }
+
+        .projects-section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .projects-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.2s;
+        }
+
+        .project-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .project-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .project-card p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .card-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .card-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .card-btn-edit {
+            background: #4299e1;
+        }
+
+        .card-btn-delete {
+            background: #f56565;
+        }
+
+        .card-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .builder-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 HTML to APK Builder</h1>
+            <p>HTML से APK बनाएं और MySQL में save करें</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Sidebar - Projects List -->
+            <div class="sidebar">
+                <h2>📂 आपके Projects</h2>
+                <div id="projectsList"></div>
+                <button class="btn btn-primary" onclick="newProject()" style="width: 100%; margin-top: 15px;">
+                    ➕ नया Project
+                </button>
+            </div>
+
+            <!-- Builder Panel -->
+            <div class="builder-panel">
+                <div class="builder-grid">
+                    <!-- Input Section -->
+                    <div class="input-section">
+                        <h3>🎨 ऐप सेटिंग्स</h3>
+
+                        <div class="form-group">
+                            <label>🏷️ ऐप का नाम:</label>
+                            <input type="text" id="appName" placeholder="ऐप का नाम लिखें" value="मेरा ऐप"
+                                oninput="updatePreview()">
+                        </div>
+
+                        <div class="form-group">
+                            <label>📄 HTML कोड:</label>
+                            <textarea id="htmlCode" placeholder="अपना HTML कोड यहाँ लिखें..." oninput="updatePreview()"><div style="text-align: center; padding: 50px 20px;">
+<h1 style="color: #667eea;">✨ नमस्ते!</h1>
+<p style="font-size: 18px; margin: 20px 0;">यह आपका ऐप है।</p>
+<button onclick="alert('बधाई हो! 🎉')" style="background: #667eea; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 16px; cursor: pointer;">क्लिक करें</button>
+</div></textarea>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="generateAPK()">📦 APK बनाएं</button>
+                            <button class="btn btn-success" onclick="saveProject()">💾 Save करें</button>
+                            <button class="btn btn-info" onclick="downloadHTML()">📥 HTML Download</button>
+                            <button class="btn btn-danger" onclick="resetCode()">🗑️ Reset</button>
+                        </div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="preview-section">
+                        <h3>📱 लाइव प्रीव्यू</h3>
+                        <div class="preview-header">
+                            <span>Preview</span>
+                            <span class="preview-badge" id="previewAppName">मेरा ऐप</span>
+                        </div>
+                        <div id="appPreview" class="app-preview">
+                            <div style="text-align: center; padding: 50px 20px;">
+                                <h1 style="color: #667eea;">✨ नमस्ते!</h1>
+                                <p style="font-size: 18px; margin: 20px 0;">यह आपका ऐप है।</p>
+                                <button onclick="alert('बधाई हो! 🎉')"
+                                    style="background: #667eea; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 16px; cursor: pointer;">क्लिक
+                                    करें</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Projects Section -->
+        <div class="projects-section">
+            <h2>📊 सभी Projects</h2>
+            <div id="allProjects" class="projects-grid"></div>
+        </div>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentProjectId = null;
+
+        // Update Preview
+        function updatePreview() {
+            let htmlCode = document.getElementById('htmlCode').value;
+            let previewDiv = document.getElementById('appPreview');
+
+            try {
+                previewDiv.innerHTML = htmlCode;
+            } catch (e) {
+                previewDiv.innerHTML = '<p style="color: red; padding: 20px;">❌ HTML में error है।</p>';
+            }
+
+            let appName = document.getElementById('appName').value;
+            if (appName.trim() !== '') {
+                document.getElementById('previewAppName').textContent = appName;
+            }
+        }
+
+        // Generate APK
+        async function generateAPK() {
+            let appName = document.getElementById('appName').value || 'MyApp';
+            let htmlCode = document.getElementById('htmlCode').value;
+
+            if (htmlCode.trim() === '') {
+                showMessage('❌ HTML कोड खाली है!', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/generate-apk`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ app_name: appName, html_code: htmlCode })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Download APK
+                    let blob = new Blob([data.apkHTML], { type: 'text/html' });
+                    let link = document.createElement('a');
+                    let url = URL.createObjectURL(blob);
+                    link.href = url;
+                    link.download = `${appName}_app.html`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+
+                    showMessage('📦 APK तैयार! Download हो गया।');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('❌ APK बनाने में error', true);
+            }
+        }
+
+        // Save Project
+        async function saveProject() {
+            let appName = document.getElementById('appName').value;
+            let htmlCode = document.getElementById('htmlCode').value;
+
+            if (!appName || !htmlCode) {
+                showMessage('❌ सभी fields भरें!', true);
+                return;
+            }
+
+            try {
+                const method = currentProjectId ? 'PUT' : 'POST';
+                const url = currentProjectId
+                    ? `${API_URL}/projects/${currentProjectId}`
+                    : `${API_URL}/projects`;
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ app_name: appName, html_code: htmlCode })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('✅ Project save हो गया!');
+                    loadProjects();
+                    if (!currentProjectId) {
+                        currentProjectId = data.id;
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('❌ Save करने में error', true);
+            }
+        }
+
+        // Download HTML
+        function downloadHTML() {
+            let appName = document.getElementById('appName').value || 'MyApp';
+            let htmlCode = document.getElementById('htmlCode').value;
+
+            let fullHTML = `<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${appName}</title>
+</head>
+<body>
+${htmlCode}
+</body>
+</html>`;
+
+            let blob = new Blob([fullHTML], { type: 'text/html' });
+            let link = document.createElement('a');
+            let url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = `${appName}.html`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showMessage('📥 HTML download हो गया!');
+        }
+
+        // Reset Code
+        function resetCode() {
+            document.getElementById('appName').value = 'मेरा ऐप';
+            document.getElementById('htmlCode').value = `<div style="text-align: center; padding: 50px 20px;">
+<h1 style="color: #667eea;">✨ नमस्ते!</h1>
+<p style="font-size: 18px; margin: 20px 0;">यह आपका ऐप है।</p>
+<button onclick="alert('बधाई हो! 🎉')" style="background: #667eea; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 16px; cursor: pointer;">क्लिक करें</button>
+</div>`;
+            updatePreview();
+            currentProjectId = null;
+            showMessage('🗑️ Reset हो गया!');
+        }
+
+        // New Project
+        function newProject() {
+            resetCode();
+            currentProjectId = null;
+        }
+
+        // Load Projects
+        async function loadProjects() {
+            try {
+                const response = await fetch(`${API_URL}/projects`);
+                const projects = await response.json();
+
+                // Sidebar
+                let sidebarHTML = '';
+                projects.forEach(project => {
+                    sidebarHTML += `
+                        <div class="project-item ${currentProjectId === project.id ? 'active' : ''}" onclick="loadProject(${project.id})">
+                            <div class="project-name">${project.app_name}</div>
+                            <div class="project-date">${new Date(project.created_at).toLocaleDateString('hi-IN')}</div>
+                        </div>
+                    `;
+                });
+                document.getElementById('projectsList').innerHTML = sidebarHTML;
+
+                // All Projects Grid
+                let gridHTML = '';
+                projects.forEach(project => {
+                    gridHTML += `
+                        <div class="project-card">
+                            <h4>${project.app_name}</h4>
+                            <p>Created: ${new Date(project.created_at).toLocaleDateString('hi-IN')}</p>
+                            <div class="card-buttons">
+                                <button class="card-btn card-btn-edit" onclick="loadProject(${project.id})">Edit</button>
+                                <button class="card-btn card-btn-delete" onclick="deleteProject(${project.id})">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('allProjects').innerHTML = gridHTML;
+            } catch (error) {
+                console.error('Error loading projects:', error);
+            }
+        }
+
+        // Load Single Project
+        async function loadProject(id) {
+            try {
+                const response = await fetch(`${API_URL}/projects/${id}`);
+                const project = await response.json();
+
+                document.getElementById('appName').value = project.app_name;
+                document.getElementById('htmlCode').value = project.html_code;
+                currentProjectId = id;
+                updatePreview();
+                loadProjects();
+                showMessage('✅ Project loaded!');
+            } catch (error) {
+                console.error('Error loading project:', error);
+                showMessage('❌ Project load करने में error', true);
+            }
+        }
+
+        // Delete Project
+        async function deleteProject(id) {
+            if (!confirm('क्या आप यह project delete करना चाहते हैं?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/projects/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('✅ Project delete हो गया!');
+                    if (currentProjectId === id) {
+                        resetCode();
+                    }
+                    loadProjects();
+                }
+            } catch (error) {
+                console.error('Error deleting project:', error);
+                showMessage('❌ Delete करने में error', true);
+            }
+        }
+
+        // Show Message
+        function showMessage(msg, isError = false) {
+            let msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.className = 'message' + (isError ? ' error' : '');
+            msgDiv.style.display = 'block';
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Load projects on page load
+        window.onload = function () {
+            updatePreview();
+            loadProjects();
+        };
+    </script>
+</body>
+
+</html>
